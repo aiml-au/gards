@@ -1,8 +1,6 @@
-# Disaster Relief Australia - Anomaly Detection
+# GARDS:  Geo-spatial Anomaly Recognition and Detection System
 
 A system to assist in triaging large volumes of overhead imagery for volunteer analysts.
-
-Depolyed to https://dra.az.aiml.team
 
 ![](screenshot.png)
 
@@ -220,3 +218,7 @@ As research, more work is needed to establish a system to fine tune the behaviou
 ## Previous Work
 
 Previously, we built an anomaly detection tool using visual similarity, as learned by a self-supervised Barlow Twins model. Unfortunately, anomalies detected by that model tended to be uninteresting (patterns in grass) or semantically inconsistent (water closer to grass than other water).  That work has been archived under the [`archive/visualanomaly`](./-/tree/archive/visualanomaly) tag.
+
+## License
+
+For Disaster Relief Australia use only. Subject to The Agreement.
