@@ -1,0 +1,35 @@
+'Is this an aerial image of area affected by earthquake?':
+  'yes':
+    'Is this an aerial image showing visible signs of ground shaking or surface disruption caused by the earthquake?':
+      'yes':
+        'Is this an aerial image showing visible cracks or fissures in the ground in the image as a result of the earthquake?':
+          'yes':
+            score: 0.5
+          'no':
+            score: 0.0
+      'no':
+        score: 0.0
+    'Is this an aerial image of infrastructure or buildings?':
+      'yes':
+        'Is this an aerial image displaying structural damage to buildings or infrastructure due to the earthquake?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0
+    'Is this an aerial image of any  individuals or animals?':
+      'yes':
+        'Is this an aerial image of any  individuals or animals stuck in buildings, debris, or stranded as a result of an earthquake?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0
+  'no':
+    'Is this an aerial image displaying structural damage to buildings or infrastructure?':
+      'yes':
+        score: 1.0
+      'no':
+        score: 0.0

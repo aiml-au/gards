@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dra-predictor"
+version = "0.0.1"
+requires-python = ">=3.10"
+dependencies = [
+    "colorlog",
+    "nats-py-worker>=0.0.9",
+    "msgpack",
+    "salesforce-lavis",
+    "rasterio",
+    "fire",
+    "fs-gcsfs",
+    "fs-azureblob"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["anomaly"]

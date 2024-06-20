@@ -1,0 +1,10 @@
+# frps.toml
+#subdomainHost = "127.0.0.1"
+bindPort = 7000
+vhostHTTPPort = 7000
+auth.method = "token"
+auth.token = "ewrfwaerfawcawecaw"
+webServer.addr = "0.0.0.0"
+webServer.port = 8000
+webServer.user = "admin"
+webServer.password = "admin"

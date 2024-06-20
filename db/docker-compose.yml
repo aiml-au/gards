@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgis/postgis
+    container_name: db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./config:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "postgres" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 30s

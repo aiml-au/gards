@@ -1,0 +1,41 @@
+'Is this an aerial image of an area that has been affected by bushfire, flood, storms, or none of the above?':
+  'bushfire':
+    'Is this an aerial image of some manmade property that has been damaged or destroyed by the bushfire?':
+      'yes':
+        anomaly: 1.0
+        mandmade: 1.0
+      'no':
+        anomaly: 0.5
+        mandmade: 0.0
+  'flood':
+    'Is this an aerial image of some manmade property that has been damaged by the flood?':
+      'yes':
+        anomaly: 1.0
+        mandmade: 1.0
+      'no':
+        mandmade: 0.0
+        'Is this an aerial image of an object that has been been displaced by the flood?':
+          'yes':
+            anomaly: 0.8
+          'no':
+            anomaly: 0.5
+  'storms':
+    'Is this an aerial image of some manmade property that has been damaged or destroyed by the storms?':
+      'yes':
+        anomaly: 1.0
+        mandmade: 1.0
+      'no':
+        mandmade: 0.0
+        'Is this an aerial image of scattered debris?':
+          'yes':
+            anomaly: 0.8
+          'no':
+            anomaly: 0.5
+  'none of the above':
+    'Is this an aerial image of some manmade property?':
+      'yes':
+        anomaly: 0.2
+        mandmade: 1.0
+      'no':
+        anomaly: 0.0
+        mandmade: 0.0

@@ -1,0 +1,29 @@
+issuer: http://localhost:3200/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:3200
+
+enablePasswordDB: true
+
+staticClients:
+- id: app
+  redirectURIs:
+  - 'http://localhost:4180/oauth2/callback'
+  name: 'App'
+  secret: "0000000000000000"
+  scopes:
+    - email
+    - groups
+    - openid
+    - profile
+
+staticPasswords:
+- email: "user@example.com"
+  hash: "$2y$15$WHi/QGYpwSdLhx1TSWp.AezehWCYgRaaOpg7BDvnkAu5ndgQqfJBK" # "password", using bcrypt with cost 15
+  username: "user"
+  userID: "0000000000000000"
+  groups:
+    - "1111111111111111"

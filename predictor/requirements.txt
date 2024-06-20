@@ -1,0 +1,9 @@
+-c constraints.txt
+-e .
+black
+pre-commit
+pytest
+bandit
+flake8
+mypy
+uvicorn

@@ -1,0 +1,13 @@
+# frpc.toml
+user = "dra"
+serverAddr = "127.0.0.1"
+serverPort = 7000
+auth.method = "token"
+auth.token = "ewrfwaerfawcawecaw"
+
+[[proxies]]
+name = "web"
+type = "tcp"
+localIP = "web.aiml-dra-anomaly.svc.cluster.local"
+localPort = 80
+remotePort = 500

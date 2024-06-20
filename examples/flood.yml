@@ -1,0 +1,56 @@
+'Is is an aerial image of an area affected by flood?':
+  'yes':
+    'Is this an aerial image of flooding with submerged structures or roads?':
+      'yes':
+        'Is this an aerial image of buildings or infrastructure damaged due to flooding?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of  debris or unusual floating objects in the water?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0.0
+    'Is this an aerial image of vegetation submerged in flood waters?':
+      'yes':
+        score: 0.5
+      'no':
+        score: 0.0
+    'Is this an aerial image of any live or deceased animals in the flood waters?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.0
+  'no':
+    'Is this an aerial image of area with a visible waterline or flood boundary?':
+      'yes':
+        'Is this an aerial image of any displaced or stranded individuals or animals?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of buildings or infrastructure damaged due to flooding?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0.0
+    'Is this an aerial image of area showing erosion or landslide as an effect of flooding?':
+      'yes':
+        'Is this an aerial image of any individuals or animals hurt or stuck due to landslide?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of buildings or infrastructure damaged due to erosion or landslide?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0.0
+  

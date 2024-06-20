@@ -1,0 +1,286 @@
+{
+    "questionset": [
+      {
+        "text": "Is is an aerial image of an area affected by flood?",
+        "answers": [
+          {
+            "text": "yes",
+            "effects": [],
+            "subquestions": [
+              {
+                "text": "Is this an aerial image of flooding with submerged structures or roads?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image of buildings or infrastructure damaged due to flooding?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Is this an aerial image of  debris or unusual floating objects in the water?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0.0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              },
+              {
+                "text": "Is this an aerial image of vegetation submerged in flood waters?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": 0.5
+                      }
+                    ],
+                    "subquestions": []
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              },
+              {
+                "text": "Is this an aerial image of any live or deceased animals in the flood waters?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "1"
+                      }
+                    ],
+                    "subquestions": []
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "no",
+            "effects": [],
+            "subquestions": [
+              {
+                "text": "Is this an aerial image of area with a visible waterline or flood boundary?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image of any displaced or stranded individuals or animals?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Is this an aerial image of buildings or infrastructure damaged due to flooding?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0.0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              },
+              {
+                "text": "Is this an aerial image of area showing erosion or landslide as an effect of flooding?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image of any individuals or animals hurt or stuck due to landslide?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Is this an aerial image of buildings or infrastructure damaged due to erosion or landslide?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionset_id": "20240122052809YqU03DfelEEM4RKk",
+    "questionset_name": "flood"
+  }

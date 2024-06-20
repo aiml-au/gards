@@ -1,0 +1,27 @@
+'Is this an aerial image of area affected by wildfire/bushfire?':
+  'yes':
+    'Is this an aerial image showing visible signs of flames or an active fire in the image due to the bushfire/wildfire?':
+      'yes':
+        score: 1.0
+      'no':
+        'Is this an aerial image displaying structural damage or destruction to buildings or infrastructure caused by the bushfire/wildfire?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.0
+        'Is this an aerial image showing burnt or scorched vegetation as a result of the bushfire/wildfire?':
+          'yes':
+            score: 0.5
+          'no':
+            score: 0.0
+        'Is this an aerial image of any individuals or animals hurt or stranded as a result of bushfire/wildfire?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.0
+  'no':
+    'Is this an aerial image showing flooding or water-related damage as a secondary effect of the bushfire/wildfire or firefighting efforts?':
+      'yes':
+        score: 0.5
+      'no':
+        score: 0.0

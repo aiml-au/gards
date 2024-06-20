@@ -1,0 +1,144 @@
+{
+    "questionset": [
+      {
+        "text": "Is this an aerial image of area affected by wildfire/bushfire?",
+        "answers": [
+          {
+            "text": "yes",
+            "effects": [],
+            "subquestions": [
+              {
+                "text": "Is this an aerial image showing visible signs of flames or an active fire in the image due to the bushfire/wildfire?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "1"
+                      }
+                    ],
+                    "subquestions": []
+                  },
+                  {
+                    "text": "no",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image displaying structural damage or destruction to buildings or infrastructure caused by the bushfire/wildfire?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Is this an aerial image showing burnt or scorched vegetation as a result of the bushfire/wildfire?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.5"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      },
+                      {
+                        "text": "Is this an aerial image of any individuals or animals hurt or stranded as a result of bushfire/wildfire?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.0"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "no",
+            "effects": [],
+            "subquestions": [
+              {
+                "text": "Is this an aerial image showing flooding or water-related damage as a secondary effect of the bushfire/wildfire or firefighting efforts?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": 0.5
+                      }
+                    ],
+                    "subquestions": []
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionset_id": null,
+    "questionset_name": "bushfire"
+  }

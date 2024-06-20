@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  queue:
+    image: nats:alpine
+    container_name: queue
+    restart: always
+    ports:
+      - "4222:4222"
+    expose:
+      - 4222
+      - 8222
+      - 6222
+    volumes:
+      - ./config:/etc/nats
+      - ./data:/tmp/nats/jetstream
+  queue_setup:
+    image: hashicorp/terraform
+    container_name: queue_setup
+    restart: "no"
+    environment:
+      TF_VAR_NATS_SERVERS: nats://queue:4222
+    depends_on:
+      queue:
+        condition: service_started
+    entrypoint: sh -c
+    command: "\"terraform -chdir=/tf init && terraform -chdir=/tf apply -auto-approve\""
+    volumes:
+      - ./init:/tf

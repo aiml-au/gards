@@ -1,0 +1,165 @@
+{
+    "questionset": [
+      {
+        "text": "Is this an aerial image of area affected by earthquake?",
+        "answers": [
+          {
+            "text": "yes",
+            "effects": [],
+            "subquestions": [
+              {
+                "text": "Is this an aerial image showing visible signs of ground shaking or surface disruption caused by the earthquake?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image showing visible cracks or fissures in the ground in the image as a result of the earthquake?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": 0.5
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              },
+              {
+                "text": "Is this an aerial image of infrastructure or buildings?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image displaying structural damage to buildings or infrastructure due to the earthquake?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              },
+              {
+                "text": "Is this an aerial image of any  individuals or animals?",
+                "answers": [
+                  {
+                    "text": "yes",
+                    "effects": [],
+                    "subquestions": [
+                      {
+                        "text": "Is this an aerial image of any  individuals or animals stuck in buildings, debris, or stranded as a result of an earthquake?",
+                        "answers": [
+                          {
+                            "text": "yes",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "1"
+                              }
+                            ],
+                            "subquestions": []
+                          },
+                          {
+                            "text": "no",
+                            "effects": [
+                              {
+                                "name": "score",
+                                "value": "0.2"
+                              }
+                            ],
+                            "subquestions": []
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "text": "no",
+                    "effects": [
+                      {
+                        "name": "score",
+                        "value": "0"
+                      }
+                    ],
+                    "subquestions": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "text": "no",
+            "effects": [
+              {
+                "name": "score",
+                "value": "0"
+              }
+            ],
+            "subquestions": []
+          }
+        ]
+      }
+    ],
+    "questionset_id": null,
+    "questionset_name": "earthquake"
+  }

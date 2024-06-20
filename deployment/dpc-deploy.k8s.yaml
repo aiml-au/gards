@@ -1,0 +1,468 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: aiml-dra-anomaly
+  name: queue
+  labels:
+    app: dra
+    service: queue
+spec:
+  replicas: 1
+  serviceName: "queue"
+  selector:
+    matchLabels:
+      app: dra
+      service: queue
+  template:
+    metadata:
+      labels:
+        app: dra
+        service: queue
+    spec:
+      containers:
+      - image: nats:alpine
+        name: nats
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: "2"
+            memory: 1Gi
+        volumeMounts:
+        - name: nats-config
+          mountPath: /etc/nats/
+        - name: stream-data
+          mountPath: /tmp/nats/jetstream
+      volumes:
+      - name: nats-config
+        configMap:
+          name: nats-config
+  volumeClaimTemplates:
+  - metadata:
+      name: stream-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: aiml-dra-anomaly
+  name: queue-setup
+  labels:
+    app: dra
+spec:
+  template:
+    metadata:
+      labels:
+        app: queue-setup
+    spec:
+      initContainers:
+      - name: copy-nats-config
+        image: busybox
+        command: ["/bin/sh", "-c", "cp /nats/* /tf/"]
+        volumeMounts:
+        - name: nats-init
+          mountPath: nats
+        - name: terraform-tmp
+          mountPath: /tf
+      containers:
+      - image: hashicorp/terraform
+        imagePullPolicy: Always
+        name: nats-setup
+        command: ["/bin/sh", "-c"]
+        args: ["terraform -chdir=/tf init && terraform -chdir=/tf apply -auto-approve"]
+        env:
+        - name: TF_VAR_NATS_SERVERS
+          value: nats://queue.aiml-dra-anomaly.svc.cluster.local:4222 #nats://queue:4222
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: terraform-tmp
+          mountPath: /tf
+        - name: nats-init
+          mountPath: /nats
+      restartPolicy: Never
+      volumes:
+      - name: nats-init
+        configMap:
+          name: nats-init
+      - name: terraform-tmp
+        emptyDir: {}
+  backoffLimit: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: aiml-dra-anomaly
+  name: db
+  labels:
+    app: dra
+    service: db
+spec:
+  replicas: 1
+  serviceName: "db"
+  selector:
+    matchLabels:
+      app: dra
+      service: db
+  template:
+    metadata:
+      labels:
+        app: dra
+        service: db
+    spec:
+      containers:
+      - image: postgis/postgis
+        name: postgres
+        env:
+        - name: POSTGRES_DB
+          value: postgres
+        - name: PGUSER
+          value: postgres
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2Gi
+          requests:
+            cpu: "2"
+            memory: 1Gi
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql
+        - name: postgres-config
+          mountPath: /docker-entrypoint-initdb.d
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -d
+            - postgres
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 60
+          failureThreshold: 5
+      volumes:
+      - name: postgres-config
+        configMap:
+          name: postgres-config
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: aiml-dra-anomaly
+  name: web
+  labels:
+    app: dra
+    service: web
+spec:
+  serviceName: "web"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dra
+      service: web
+  template:
+    metadata:
+      labels:
+        app: dra
+        service: web
+    spec:
+      initContainers:
+      - name: wait-for-nats
+        image: busybox
+        command: ["sh", "-c", "until nc -z queue 4222 > /dev/null; do echo Waiting for NATS; sleep 5; done;"]
+      containers:
+      - image: docker.aiml.team/products/dra/gis-predictions/web
+        imagePullPolicy: Always
+        name: web
+        env:
+        - name: NATS_SERVERS
+          value: "nats://queue.aiml-dra-anomaly.svc.cluster.local:4222"
+        - name: REMOTE_FS
+          value: "gs://aiml-dra-anomaly-data/working_dir"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /root/.config/gcloud/credentials.json
+        - name: DB_URL
+          value: postgres://web:s7n7Q5wPk8peGGSXfPk8pewXkA@db:5432/postgres?sslmode=disable
+        - name: GOOGLE_CLOUD_PROJECT
+          value: aiml-dra-anomaly
+        volumeMounts:
+        - name: gcp-credentials
+          mountPath: /root/.config/gcloud/
+        - name: data-cache
+          mountPath: /root/.cache/dra
+        resources:
+          limits:
+            cpu: "2"
+            memory: 40Gi
+          requests:
+            cpu: "1"
+            memory: 20Gi
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: gcp-credentials
+        secret:
+          secretName: gcp
+          items:
+          - key: data-manager
+            path: credentials.json
+      - name: frpc-config
+        configMap:
+          name: frpc-config
+          items:
+          - key: frpc.toml
+            path: frpc.toml
+  volumeClaimTemplates:
+  - metadata:
+      name: data-cache
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 50Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: aiml-dra-anomaly
+  name: web
+spec:
+  type: ClusterIP
+  selector:
+    app: dra
+    service: web
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: aiml-dra-anomaly
+  name: predictor
+  labels:
+    app: dra
+    service: predictor
+spec:
+  serviceName: "predictor"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dra
+      service: predictor
+  template:
+    metadata:
+      labels:
+        app: dra
+        service: predictor
+    spec:
+      nodeSelector:
+        nvidia.com/gpu.product: "NVIDIA-A100-SXM4-40GB"
+      containers:
+      - image: docker.aiml.team/products/dra/gis-predictions/predictor
+        imagePullPolicy: Always
+        name: predictor
+        env:
+        - name: NATS_SERVERS
+          value: "nats://queue.aiml-dra-anomaly.svc.cluster.local:4222"
+        - name: REMOTE_FS
+          value: "gs://aiml-dra-anomaly-data/working_dir"
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /root/.config/gcloud/credentials.json
+        - name: DB_URL
+          value: postgres://web:s7n7Q5wPk8peGGSXfPk8pewXkA@db:5432/postgres?sslmode=disable
+        - name: GOOGLE_CLOUD_PROJECT
+          value: aiml-dra-anomaly
+        volumeMounts:
+        - name: gcp-credentials
+          mountPath: /root/.config/gcloud/
+        - name: data-cache
+          mountPath: /root/.cache/dra
+        resources:
+          limits:
+            cpu: "2"
+            memory: 100Gi
+            nvidia.com/gpu: "1"
+          requests:
+            cpu: "1"
+            memory: 100Gi
+            nvidia.com/gpu: "1"
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: gcp-credentials
+        secret:
+          secretName: gcp
+          items:
+          - key: data-manager
+            path: credentials.json
+  volumeClaimTemplates:
+  - metadata:
+      name: data-cache
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: aiml-dra-anomaly
+  name: queue
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: dra
+    service: queue
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: aiml-dra-anomaly
+  name: db
+spec:
+  type: ClusterIP
+  selector:
+    app: dra
+    service: db
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: aiml-dra-anomaly
+  name: predictor
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: dra
+    service: predictor
+  sessionAffinity: None
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  namespace: aiml-dra-anomaly
+  name: predictor
+spec:
+  minReplicaCount: 0
+  maxReplicaCount: 1
+  scaleTargetRef:
+    name: predictor
+    kind: StatefulSet
+  cooldownPeriod: 3600
+  triggers:
+  - type: nats-jetstream
+    metadata:
+      account: "$G"
+      natsServerMonitoringEndpoint: "queue.aiml-dra-anomaly.svc.cluster.local:8222"
+      stream: RASTERS
+      consumer: predictor_process_chunks # Will fail silently if this name is wrong
+      lagThreshold: "10"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: google-sdk-frp-client
+  namespace: aiml-dra-anomaly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dpc-frp-dra-service
+  template:
+    metadata:
+      labels:
+        app: dpc-frp-dra-service
+    spec:
+      containers:
+      - name: google-sdk-to-gke
+        image: google/cloud-sdk:alpine
+        resources:
+          limits:
+            cpu: "1"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 4Gi
+        command: ["/bin/bash", "-c"]
+        ## kubectl -n change the namespace to new project name
+        args:
+        - |
+          apk add kubectl
+          gcloud components install gke-gcloud-auth-plugin
+          gcloud auth activate-service-account --key-file=/home/frp-sa.json
+          gcloud container clusters get-credentials aiml-infrastructure-cluster --location=australia-southeast1-b --project=aiml-infrastructure
+          kubectl -n aiml-dra-anomaly port-forward service/frp-dra-service-forward-port 7000:7000
+          sleep 30
+        volumeMounts:
+        - mountPath: /home
+          name: frp-sa
+      - name: frpc
+        image: ubuntu:latest
+        resources:
+          limits:
+            cpu: "1"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 4Gi
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          apt-get update && apt-get install wget -y
+          wget https://github.com/fatedier/frp/releases/download/v0.56.0/frp_0.56.0_linux_amd64.tar.gz
+          tar -zxvf frp_0.56.0_linux_amd64.tar.gz
+          cd frp_0.56.0_linux_amd64/
+          ./frpc -c /usr/local/frps/frpc.toml
+        volumeMounts:
+        - mountPath: /usr/local/frps/frpc.toml
+          subPath: frpc.toml
+          name: frpc-config
+      volumes:
+      - name: frpc-config
+        configMap:
+          name: frpc-config
+          items:
+          - key: frpc.toml
+            path: frpc.toml
+      - name: frp-sa
+        secret:
+          secretName: frp-sa
+          items:
+          - key: frp-sa
+            path: frp-sa.json

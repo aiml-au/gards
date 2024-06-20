@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detection | All Files</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/petite-vue" defer></script>
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="script.js" defer></script>
+
+    <!-- Add your stylesheet links here -->
+</head>
+
+<body>
+    <div class="container" v-scope @vue:mounted="load_questions()">
+        <header style="padding-bottom:30px ;" class="control-container">
+            <div><a href="/"
+                style="color: black; text-decoration: None;">GIS Prediction</a>
+            </div>
+            <div>
+                <a href="/"
+                    style="color: black; text-decoration: None;">Home</a>
+            </div>
+        </header>
+        <div class="title">
+            <h1>Question sets</h1>
+            <p style="text-decoration: underline;font-weight: bold;color: #282828;">Overview</p>
+            <p style="color: #292827c9;">
+                To create a new questionset, click on "Add New Questionset" and add new questions, answers and scores.
+                You can validate and save your
+                templates to be used for anomaly detection. Additionally, you can view and update existing questionsets
+                by selecting the questionset from the options below.
+                You can taylor each questionset to your specific need.
+            </p>
+
+        </div>
+
+        <template id="question_template">
+            <div class="question">
+                <div v-scope="{
+                    isCollapsed: true,
+                    toggleCollapse() {
+                        this.isCollapsed = !this.isCollapsed;
+                    }
+                }">
+                    <div v-if="question.answers.length">
+                        <button @click="toggleCollapse()" class="primary-button-small">{{ isCollapsed ? 'Expand Answers': 'Hide Answers' }}</button>
+                        <button @click="add_new_answer(question)">Add New Answer</button>
+                        <div class="collapsible-content" :class="{'active': !isCollapsed}">
+                            <div class="answer" v-for="answer in question.answers" :key="answer">
+                                <input v-model="answer.text" @change="input_dirty" @input="input_dirty"
+                                    style="width: 60%;" />
+                                <button @click="delete_answer(question.answers, answer)">Delete Answer</button>
+                                <button @click="add_new_effect(answer)">Add New Effect</button>
+                                <button @click="add_new_question(answer.subquestions)">Add Subquestion </button>
+
+                                <div class="effects" v-for="effect in answer.effects" :key="effect">
+                                    <input v-model="effect.name" @change="input_dirty" @input="input_dirty" />
+                                    <input v-model="effect.value" @change="check_float(effect.value)" />
+                                    <button @click="delete_effect(answer.effects, effect)">Delete Effect</button>
+                                    <span v-if="score_invalid" class="not_valid"> {{check_float(effect.value)}} </span>
+                                </div>
+
+
+
+                                <div v-if="answer.subquestions & !answer.subquestions.length">
+                                </div>
+                                <div v-else>
+                                    <div v-scope="QuestionSet(answer.subquestions)"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div v-else>
+                        <button @click="add_new_answer(question)">Add New Answer</button>
+                    </div>
+                </div>
+
+            </div>
+        </template>
+
+        <template id="questionset_template">
+            <div v-if="questionset.length">
+                <div class="questionset" style="background-color: #8080800a; border-radius: 8px;">
+                    <div v-scope="{
+                        isCollapsed: true,
+                        toggleCollapse() {
+                            this.isCollapsed = !this.isCollapsed;
+                        }
+                    }">
+                        <button @click="toggleCollapse()" style="margin-bottom: 15px;"> {{ isCollapsed ? 'Show Questions' : 'Hide Questions' }} </button>
+                        <div v-for="question in questionset" :key="question">
+
+                            <div class="collapsible-content" :class="{'active': !isCollapsed}">
+
+                                <input style="width:75%" v-model="question.text" @change="input_dirty"
+                                    @input="input_dirty" />
+                                <button @click="delete_question(questionset, question)">Delete this question</button>
+                                <div v-scope="Question(question)"></div>
+                            </div>
+
+                        </div>
+                        <div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </template>
+
+        <template v-if="editing_questionsets">
+            <div>
+                <div class="control-container" v-if="data && data.length">
+                    <div style="display:flex;flex-direction: column;">
+                        Select questionset to view
+                        <select class="selectbox" v-model="selected" @change="update_questionset">
+                            <option v-for="item in data" :value="item" :key="item">
+                                {{ item.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="primary-button" @click="selected=undefined; add_new_questionset()">Add New
+                            Questionset</button>
+                    </div>
+                </div>
+
+                <template v-if="questionset">
+                    <div>
+                        <div class="inside-container">
+                            <div style="display: flex;align-items: center;">Template Name:
+                                <input style="margin-left: 5px; padding: 3px;" v-model="questionset_name"
+                                    placeholder="type template name" @change="check_name" @input="check_name" />
+                            </div>
+                            <div style="display: flex;align-items: center;">
+                                <button class="secondary-button-small" @click="save_questionset()"
+                                    :disabled="!questionset_dirty || !questionset_name_valid">{{save_template_msg}}</button>
+                                <button class="secondary-button-small" @click="save_questionset(save_as=true)"
+                                    v-if="questionset_id" :disabled="!questionset_dirty || !questionset_name_valid">Save
+                                    As</button>
+                                <button class="primary-button-small" @click="validate">Validate</button>
+
+                                <div>
+                                    <button class="secondary-button-small" @click="add_new_question(questionset)">Add
+                                        New
+                                        Question</button>
+                                </div>
+                            </div>
+                        </div>
+                        <span v-if="questionset_name && !questionset_name_valid" class="not_valid">To save the template,
+                            enter another template name</span>
+                    </div>
+                    <!-- </template> -->
+            </div>
+
+            <div v-scope="redirectView()"></div>
+            <div class="padding-top" style="padding: 1em; margin: 1em" id="validation-result">
+
+                <span v-if="msg && msg!=''" class="not_valid">{{msg}}</span>
+
+                <div class="control-container" v-if="effectset && samples">
+                    <span class="valid"> The Template is Valid!</span>
+                    <button @click="samples=null;effectset=null ">Clear</button>
+                </div>
+
+
+                <div v-if="effectset && effectset.length" class="padding-top">
+                    <span>Effect list:</span>
+                    <span><b>{{effectset}}</b></span>
+
+                </div>
+                <div v-if="samples && samples.length" class="padding-top">
+                    Random selection for 3 runs. Effects not explored by question path will be shown as 0.
+                    <table>
+                        <tr>
+                            <th>#Run</th>
+                            <th>Decision tree</th>
+                        </tr>
+                        <tr v-for="(sample, index) in samples" :key="sample">
+                            <td style="text-align:center">{{ index + 1}}</td>
+                            <td>
+                                <ul v-for="(v, k) in sample" :key="k">
+                                    <li>{{k}}: {{ v }}</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </template>
+
+
+    </div>
+</body>
+
+</html>

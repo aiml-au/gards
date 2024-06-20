@@ -1,0 +1,33 @@
+'Is this an aerial image of an area that has been affected by bushfire, flood, storms, or none of the above?':
+  'bushfire':
+    'Is this an aerial image of some manmade property that has been damaged or destroyed by the bushfire?':
+      'yes':
+        score: 1.0
+      'no':
+        score: 0.5
+  'flood':
+    'Is this an aerial image of some manmade property that has been damaged by the flood?':
+      'yes':
+        score: 1.0
+      'no':
+        'Is this an aerial image of an object that has been been displaced by the flood?':
+          'yes':
+            score: 0.8
+          'no':
+            score: 0.5
+  'storms':
+    'Is this an aerial image of some manmade property that has been damaged or destroyed by the storms?':
+      'yes':
+        score: 1.0
+      'no':
+        'Is this an aerial image of scattered debris?':
+          'yes':
+            score: 0.8
+          'no':
+            score: 0.5
+  'none of the above':
+    'Is this an aerial image of some manmade property?':
+      'yes':
+        score: 0.2
+      'no':
+        score: 0.0

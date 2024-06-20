@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detection</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/petite-vue" defer></script>
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="script.js" defer></script>
+    <!-- Add your stylesheet links here -->
+</head>
+
+<body>
+    <div class="container" @vue:mounted="refresh_folders()">
+        <div class="popup" v-if="showPopup">
+            <div class="popup-header">
+                <p v-if="selectedAction === 'upload'">Upload File</p>
+                <p v-else> {{ selectedAction }} File</p>
+                <button @click="close_popup();" class="close-button"
+                    style="border: none; background: none;cursor: pointer;color: grey;">X</button>
+            </div>
+            <div v-if="selectedAction === 'upload'">
+                <form @submit.prevent="upload_raster()">
+                    <div class="upload-area" @dragover.prevent
+                        @drop.prevent="stage_raster($event.dataTransfer.files[0]), uploading = false, fileName = $event.dataTransfer.files[0].name">
+                        <span>Drop files here or <input type="file" id="file"
+                                @change="stage_raster($event.target.files[0]), uploading = false, fileName = $event.target.files[0].name"
+                                style="display: none;" /><label for="file">Browse...</label> </span>
+                        <span v-if="file">Selected File: {{ fileName }}</span>
+                    </div>
+                    <div @vue:mounted="load_questions()">
+                        <template v-if="data && data.length">
+                            <label> Questionset
+                                <select class="selectbox" v-model="selected" @change="update_questionset">
+                                    <option :value="null" disabled>-- select --</option>
+                                    <option v-for="item in data" :value="item" :key="item">
+                                        {{ item.name }}
+                                    </option>
+                                </select>
+                            </label>
+                        </template>
+                    </div>
+                    <div class="upload-progress" v-show="uploading">
+                        <label for="file-upload">Uploading:</label>
+                        <progress id="file-upload" :value="progress" max="100"></progress>
+                        <span>{{ progress.toFixed(2) }}%</span>
+                    </div>
+                    <div v-show="showUploadMessage" style="margin-top: 10px;">
+                        <span id="upload-message" style="font-style: italic;"></span>
+                    </div>
+                    <div class="popup-footer">
+                        <button type="submit" :disabled="!file || questionset_name == null || disableUploading">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div v-else-if="selectedAction === 'Download Raw'">
+                <p>Download original {{ actionFolder.name }}?</p>
+                <div class="popup-footer">
+                    <a class="primary-button" target="_blank" @click="close_popup()" :href="'/source/zip/' + actionFolder.id ">Download Original</a>
+                </div>
+            </div>
+            <div v-else-if="selectedAction === 'Download Results'">
+                <p>Download results for {{ actionFolder.name }}?</p>
+                <div class="popup-footer">
+                    <a class="primary-button" target="_blank" @click="close_popup()" :href="'/result/zip/' + actionFolder.id ">Download Original</a>
+                </div>
+            </div>
+            <div v-else-if="selectedAction === 'Delete'">
+                <p>Delete {{ actionFolder.name }}?</p>
+                <div class="popup-footer">
+                    <a class="primary-button" target="_blank" @click="delete_raster(actionFolder);close_popup()" >Delete</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="popup" v-if="showActionConfirmation">
+            <div class="popup-header">
+                <p>{{ selectedAction }}</p>
+                <button @click="close_popup()" class="close-button"
+                    style="border: none; background: none;cursor: pointer;color: grey;">X</button>
+            </div>
+        </div>
+
+    <header style="padding-bottom:30px ;" class="control-container">
+        <div style="cursor: pointer;" @click="select_folder(null)">
+            GIS Prediction
+        </div>
+        <div v-if="folder && rasters || showLogs">
+            <a href="#" @click="select_folder(null)" style="color: black; text-decoration: None;">Back</a>
+        </div>
+        <div v-if="!folder && folders && ! showLogs">
+            <a href="#" @click="showLogs = true, connect()" style="color: black; text-decoration: None;">System Info</a>
+        </div>
+    </header>
+    <div class="title">
+        <h1>Anomaly Detection</h1>
+        <p v-if="!folder && folders && !showLogs" style="text-decoration: underline;font-weight: bold;color: #282828;">Overview</p>
+        <p v-if="!folder && folders && !showLogs" style="color: #292827c9;">
+            To run anomaly detection, upload a TIFF file or a ZIP folder containing TIFF files by clicking “Upload New
+            File”
+            button and selecting the file for analysis. Select your questionset and submit the job to upload and run
+            anomaly detection.
+
+            You can customise or add new questionset template by navigating to "Questionset" page by clicking on
+            "Questionset" button.
+            The results can be reviewed and analysed after processing by clicking on the file from the table below.
+        </p>
+
+    </div>
+    <template v-if="!folder && folders && !showLogs">
+        <div>
+            <div class="control-container">
+                <div>
+                    <input v-if="folders.length" type="text" placeholder="Search File" v-model="search">
+                </div>
+                <div>
+                    <button class="primary-button"
+                        @click="window.location.href = 'questionset.html'">Questionset</button>
+                    <button class="primary-button" @click="showPopup = true, selected = null">Upload New File</button>
+                </div>
+            </div>
+
+            <div v-if="folders && folders.length" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Question Set</th>
+                            <th>Status</th>
+                            <th>Area (m²)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="folder in filter_folders" @vue:key="folder.id" @click="select_folder(folder)">
+                            <td>{{ folder.name }}</td>
+                            <td>{{ folder.questionset }}</td>
+                            <td>{{ folder.status }}</td>
+                            <td>{{ folder.area !== null ? folder.area.toFixed(2) : 'unavailable' }}</td>
+                            <td style="width: 200px !important;" @click.stop>
+                                <select v-model="folder.selectedAction"
+                                    @change="select_action(folder.selectedAction, folder)">
+                                    <option value="View">View</option>
+                                    <option value="Download Raw">Download Raw</option>
+                                    <option v-if="folder.status === 'Done'" value="Download Results">Download Results</option>
+                                    <option v-if="folder.status === 'Done' || folder.status === 'Invalid'" value="Delete">Delete</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-else>
+                Upload New File to Get Started
+            </div>
+        </div>
+
+    </template>
+
+    <template v-if="folder && rasters && !showLogs">
+        <div>
+            <h4>File: {{folder.name}}</h4>
+            <div class="info">
+                <p> Total Area: {{ folder.area !== null ? folder.area.toFixed(2) + ' m²' : 'unavailable' }}</p>
+                <p> Status: {{ folder.status }}</p>
+            </div>
+
+            <a :href="'/source/zip/' + folder.id" target="_blank">Download Original (all)</a>
+            <a v-if="rasters && rasters.length" :href="'/result/zip/' + folder.id" target="_blank">Download Results (all)</a>
+
+            <div style="display: flex; gap: 100px; margin-top:20px" v-if="folder">
+                <div v-if="rasters && rasters.length" style="display:flex;flex-direction: column;">
+                    <span>File</span>
+                    <select class="selectbox" v-model="raster" @change="initialise_map(raster , band_selected)">
+                        <option v-for="raster in rasters" :key="folder.id" :value="raster">
+                            {{ raster.name }}
+                        </option>
+                    </select>
+                </div>
+                <template v-if="raster">
+                    <div if="raster.effectset" style="display:flex;flex-direction: column;">
+                        <br />
+                        <span>Band</span>
+                        <select class="selectbox" v-model="band_selected"
+                            @change="initialise_map(raster , band_selected)">
+                            <option v-for="(item, index) in raster.effectset" :key="item" :value="index+1">
+                                {{ index+1 }}: {{ item }}
+                            </option>
+                        </select>
+                    </div>
+                </template>
+
+            </div>
+
+            <template v-if="raster">
+                <div id="map" @vue:mounted="initialise_map(raster, band_selected)"
+                    style="margin:50px;border: 1px solid #80808066;"></div>
+
+                <div style="display: flex; justify-content: center; gap: 100px;">
+                    <a class="primary-button" :href="'/rasters/' + raster.id + '.tif'" target="_blank">Download Original</a>
+                    <a class="primary-button" :href="'/rasters/' + raster.id + '/results/anomaly'" target="_blank">Download Result</a>
+                </div>
+            </template>
+
+
+        </div>
+    </template>
+    <template v-if="showLogs">
+        <div>
+            <h4>System Logs</h4>
+            <div class="log-container">
+                <div class="logs">
+                    <div v-for="log in logs" :key="log" v-html="log" class="log-entry"></div>
+                </div>
+               
+            </div>
+            
+        </div>
+    </template>    
+
+
+    </div>
+</body>
+
+</html>

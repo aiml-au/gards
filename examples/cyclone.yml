@@ -1,0 +1,75 @@
+'Is this an aerial image of area affected by cyclone?':
+  'yes':
+    'Is this an aerial image showing structural damage to buildings or infrastructure due to the cyclone or flood waters?':
+      'yes':
+        score: 1.0
+      'no':
+        score: 0.2
+    'Is this an aerial image of flooding as a result of the cyclone?':
+      'yes':
+        'Is this an aerial image of flooding with submerged structures or roads?':
+          'yes':
+            score: 1
+          'no':
+            score: 0.0
+        'Is this an aerial image of  debris or unusual floating objects in the water?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of vegetation submerged or damaged by flood waters?':
+          'yes':
+            score: 0.5
+          'no':
+            score: 0.2
+        'Is this an aerial image of any live or deceased animals in the flood waters?':
+              'yes':
+                score: 1.0
+              'no':
+                score: 0.2
+      'no':
+        score: 0.0
+    'Is this an aerial image of any displaced or stranded individuals or animals?':
+      'yes':
+        score: 1.0
+      'no':
+        score: 0.0
+  'no':
+    'Is this an aerial image showing signs of heavy winds and storm-related damage?':
+      'yes':
+        'Is this an aerial image showing structural damage to buildings or infrastructure due to heavy winds or storms?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of any displaced or stranded individuals or animals as a result of the cyclone or flooding?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0.0
+    'Is this an aerial image of flooding?':
+      'yes':
+        'Is this an aerial image of buildings or infrastructure damaged due to flooding?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+        'Is this an aerial image of debris or unusual floating objects in the water?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.2
+      'no':
+        score: 0.0
+    'Is this an aerial image of vegetation submerged or damaged flood waters?':
+      'yes':
+        score: 0.5
+      'no':
+        score: 0.0
+    'Is this an aerial image of any live or deceased animals in the flood waters?':
+          'yes':
+            score: 1.0
+          'no':
+            score: 0.0

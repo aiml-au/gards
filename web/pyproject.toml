@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dra-web"
+version = "0.0.1"
+requires-python = ">=3.10"
+dependencies = [
+    "colorlog",
+    "fastapi",
+    "nats-py-worker>=0.0.9",
+    "msgpack-python",
+    "rasterio",
+    "python-multipart",
+    "numpy",
+    "fs-gcsfs",
+    "fs-azureblob",
+    "psycopg2-binary",
+    "mercantile",
+    "Pillow",    
+    "rio-tiler>=6.2.5,<7.0",    
+    "rio-cogeo",   
+    "websockets", 
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["anomaly"]
